@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demonstração - Manutenção de Ativos</title>
+    <!-- Carregando Tailwind CSS para estilos rápidos e responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carregando a biblioteca de ícones Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* Estilos personalizados para complementar o Tailwind */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar-link.active {
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+        }
+        /* Animação suave para as páginas e modal */
+        .page, #modal-container {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        #modal-content {
+             animation: slideUp 0.3s ease-in-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .no-results {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen">
+
+    <!-- BARRA LATERAL (SIDEBAR) RESPONSIVA -->
+    <aside class="w-20 lg:w-64 bg-gray-800 text-white flex flex-col p-4 flex-shrink-0 transition-all duration-300">
+        <div class="flex items-center gap-3 mb-8 h-8">
+            <i class="ph ph-wrench text-3xl text-indigo-400 flex-shrink-0"></i>
+            <h1 class="text-2xl font-bold hidden lg:inline whitespace-nowrap">Manutenção</h1>
+        </div>
+        <nav class="flex flex-col gap-2">
+            <a href="#" class="sidebar-link nav-link active group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors" data-page="dashboard">
+                <i class="ph ph-gauge text-2xl"></i> 
+                <span class="hidden lg:inline">Dashboard</span>
+                <!-- Tooltip -->
+                <span class="absolute left-full ml-4 px-2 py-1 bg-gray-900 text-white text-sm rounded-md shadow-lg opacity-0 lg:hidden group-hover:opacity-100 transition-opacity whitespace-nowrap">Dashboard</span>
+            </a>
+            <a href="#" class="sidebar-link nav-link group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors" data-page="ativos">
+                <i class="ph ph-truck text-2xl"></i> 
+                <span class="hidden lg:inline">Ativos</span>
+                <!-- Tooltip -->
+                <span class="absolute left-full ml-4 px-2 py-1 bg-gray-900 text-white text-sm rounded-md shadow-lg opacity-0 lg:hidden group-hover:opacity-100 transition-opacity whitespace-nowrap">Ativos</span>
+            </a>
+            <a href="#" class="sidebar-link nav-link group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors" data-page="programacoes">
+                <i class="ph ph-calendar-check text-2xl"></i> 
+                <span class="hidden lg:inline">Programações</span>
+                <!-- Tooltip -->
+                <span class="absolute left-full ml-4 px-2 py-1 bg-gray-900 text-white text-sm rounded-md shadow-lg opacity-0 lg:hidden group-hover:opacity-100 transition-opacity whitespace-nowrap">Programações</span>
+            </a>
+            <a href="#" class="sidebar-link nav-link group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors" data-page="os">
+                <i class="ph ph-file-text text-2xl"></i> 
+                <span class="hidden lg:inline">Ordens de Serviço</span>
+                <!-- Tooltip -->
+                <span class="absolute left-full ml-4 px-2 py-1 bg-gray-900 text-white text-sm rounded-md shadow-lg opacity-0 lg:hidden group-hover:opacity-100 transition-opacity whitespace-nowrap">Ordens de Serviço</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="flex-1 p-6 lg:p-8 overflow-y-auto">
+        <!-- PÁGINA DASHBOARD -->
+        <div id="dashboard" class="page active">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                <!-- KPI Card: Total de Ativos -->
+                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-5">
+                    <div class="bg-blue-100 p-4 rounded-full"><i class="ph ph-truck text-3xl text-blue-600"></i></div>
+                    <div>
+                        <h3 class="text-gray-500 font-medium">Total de Ativos</h3>
+                        <div id="kpi-ativos" class="text-4xl font-bold text-gray-800">0</div>
+                    </div>
+                </div>
+                <!-- KPI Card: Manutenções Programadas -->
+                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-5">
+                    <div class="bg-green-100 p-4 rounded-full"><i class="ph ph-calendar-check text-3xl text-green-600"></i></div>
+                    <div>
+                        <h3 class="text-gray-500 font-medium">Manutenções Programadas</h3>
+                        <div id="kpi-programacoes" class="text-4xl font-bold text-gray-800">0</div>
+                    </div>
+                </div>
+                <!-- KPI Card: Ordens de Serviço Abertas -->
+                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-5">
+                     <div class="bg-yellow-100 p-4 rounded-full"><i class="ph ph-file-text text-3xl text-yellow-600"></i></div>
+                    <div>
+                        <h3 class="text-gray-500 font-medium">Ordens de Serviço</h3>
+                        <div id="kpi-os" class="text-4xl font-bold text-gray-800">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PÁGINA ATIVOS -->
+        <div id="ativos" class="page hidden">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800">Ativos</h2>
+                    <div class="flex items-center gap-4">
+                        <input type="text" id="filter-ativos" placeholder="Filtrar por descrição..." class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        <button id="add-ativo-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center gap-2">
+                            <i class="ph ph-plus"></i> Adicionar Ativo
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 border-b-2 border-gray-200">
+                            <tr>
+                                <th class="p-3 text-sm font-semibold tracking-wide">ID</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide">Descrição</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide">Tipo</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide">Aquisição</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ativos-table-body" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                     <p id="ativos-no-results" class="no-results text-center p-4 text-gray-500">Nenhum resultado encontrado.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PÁGINA MANUTENÇÕES PROGRAMADAS -->
+        <div id="programacoes" class="page hidden">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800">Manutenções Programadas</h2>
+                    <div class="flex items-center gap-4">
+                        <input type="text" id="filter-programacoes" placeholder="Filtrar por serviço..." class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        <button id="add-prog-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center gap-2">
+                            <i class="ph ph-plus"></i> Adicionar Programação
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                         <thead class="bg-gray-50 border-b-2 border-gray-200">
+                            <tr>
+                                <th class="p-3 text-sm font-semibold tracking-wide">ID</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide">Ativo</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide">Serviço</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide">Data Programada</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide">Status</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="programacoes-table-body" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                    <p id="programacoes-no-results" class="no-results text-center p-4 text-gray-500">Nenhum resultado encontrado.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PÁGINA ORDENS DE SERVIÇO -->
+        <div id="os" class="page hidden">
+             <div class="bg-white p-6 rounded-xl shadow-md">
+                <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800">Ordens de Serviço</h2>
+                     <div class="flex items-center gap-4">
+                        <input type="text" id="filter-os" placeholder="Filtrar por serviço..." class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        <button id="add-os-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center gap-2">
+                            <i class="ph ph-plus"></i> Adicionar OS
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                         <thead class="bg-gray-50 border-b-2 border-gray-200">
+                            <tr>
+                                <th class="p-3 text-sm font-semibold tracking-wide">ID</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide">Ativo</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide">Serviço</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide">Data Abertura</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide">Origem</th>
+                                <th class="p-3 text-sm font-semibold tracking-wide text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="os-table-body" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                    <p id="os-no-results" class="no-results text-center p-4 text-gray-500">Nenhum resultado encontrado.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL GENÉRICO -->
+    <div id="modal-container" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center p-4 hidden">
+        <div id="modal-content" class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg">
+            <!-- Conteúdo do modal será injetado aqui pelo JavaScript -->
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- DADOS EM MEMÓRIA (SIMULAÇÃO DE BANCO DE DADOS) ---
+    let db = {
+        ativos: [
+            { id: 1, descricao: 'Caminhão Scania R450', tipo: 'Veículo', aquisicao: '2022-03-15' },
+            { id: 2, descricao: 'Motor Estacionário MWM', tipo: 'Motor', aquisicao: '2021-08-20' },
+            { id: 3, descricao: 'Empilhadeira Hyster H50', tipo: 'Outros', aquisicao: '2023-01-10' }
+        ],
+        programacoes: [
+            { id: 1, idAtivo: 1, servico: 'Troca de Filtros e Óleo', data: '2025-06-20', status: 'Programada'},
+            { id: 2, idAtivo: 2, servico: 'Revisão Geral', data: '2025-07-01', status: 'Programada'}
+        ],
+        ordensServico: [
+            { id: 1, idAtivo: 3, servico: 'Reparo no sistema hidráulico', data: '2025-06-10', origem: 'Avulsa' }
+        ]
+    };
+
+    // --- ELEMENTOS DO DOM ---
+    const navLinks = document.querySelectorAll('.nav-link');
+    const pages = document.querySelectorAll('.page');
+    const kpiAtivos = document.getElementById('kpi-ativos');
+    const kpiProgramacoes = document.getElementById('kpi-programacoes');
+    const kpiOS = document.getElementById('kpi-os');
+    
+    // Table Bodies
+    const tableBodies = {
+        ativos: document.getElementById('ativos-table-body'),
+        programacoes: document.getElementById('programacoes-table-body'),
+        os: document.getElementById('os-table-body'),
+    }
+
+    // Modal
+    const modalContainer = document.getElementById('modal-container');
+    const modalContent = document.getElementById('modal-content');
+
+    // --- FUNÇÕES DE RENDERIZAÇÃO ---
+    const renderKPIs = () => {
+        kpiAtivos.textContent = db.ativos.length;
+        kpiProgramacoes.textContent = db.programacoes.length;
+        kpiOS.textContent = db.ordensServico.length;
+    }
+
+    const renderAtivosTable = () => {
+        const tbody = tableBodies.ativos;
+        tbody.innerHTML = '';
+        if (db.ativos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-gray-500">Nenhum ativo cadastrado.</td></tr>';
+            return;
+        }
+        db.ativos.forEach(a => {
+            const row = `
+                <tr class="hover:bg-gray-50" data-id="${a.id}">
+                    <td class="p-3 text-sm text-gray-700">${a.id}</td>
+                    <td class="p-3 text-sm font-bold text-gray-900">${a.descricao}</td>
+                    <td class="p-3 text-sm text-gray-700">${a.tipo}</td>
+                    <td class="p-3 text-sm text-gray-700">${new Date(a.aquisicao + 'T00:00:00').toLocaleDateString()}</td>
+                    <td class="p-3 text-sm text-gray-700 text-center">
+                        <button class="edit-btn text-blue-500 hover:text-blue-700 p-1" data-type="ativo" data-id="${a.id}"><i class="ph ph-pencil-simple text-lg"></i></button>
+                        <button class="delete-btn text-red-500 hover:text-red-700 ml-2 p-1" data-type="ativo" data-id="${a.id}"><i class="ph ph-trash text-lg"></i></button>
+                    </td>
+                </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    const renderProgramacoesTable = () => {
+        const tbody = tableBodies.programacoes;
+        tbody.innerHTML = '';
+         if (db.programacoes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-gray-500">Nenhuma programação encontrada.</td></tr>';
+            return;
+        }
+        db.programacoes.forEach(p => {
+            const ativo = db.ativos.find(a => a.id === p.idAtivo);
+            const statusClass = p.status === 'Programada' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+            const row = `
+                 <tr class="hover:bg-gray-50" data-id="${p.id}">
+                    <td class="p-3 text-sm text-gray-700">${p.id}</td>
+                    <td class="p-3 text-sm font-bold text-gray-900">${ativo ? ativo.descricao : 'Ativo não encontrado'}</td>
+                    <td class="p-3 text-sm text-gray-700">${p.servico}</td>
+                    <td class="p-3 text-sm text-gray-700">${new Date(p.data + 'T00:00:00').toLocaleDateString()}</td>
+                    <td class="p-3 text-sm"><span class="px-2 py-1 rounded-full text-xs font-semibold ${statusClass}">${p.status}</span></td>
+                    <td class="p-3 text-sm text-gray-700 text-center">
+                        <button class="edit-btn text-blue-500 hover:text-blue-700 p-1" data-type="programacao" data-id="${p.id}"><i class="ph ph-pencil-simple text-lg"></i></button>
+                        <button class="delete-btn text-red-500 hover:text-red-700 ml-2 p-1" data-type="programacao" data-id="${p.id}"><i class="ph ph-trash text-lg"></i></button>
+                    </td>
+                </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    const renderOsTable = () => {
+        const tbody = tableBodies.os;
+        tbody.innerHTML = '';
+        if (db.ordensServico.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-gray-500">Nenhuma Ordem de Serviço encontrada.</td></tr>';
+            return;
+        }
+        db.ordensServico.forEach(o => {
+            const ativo = db.ativos.find(a => a.id === o.idAtivo);
+            const row = `
+                 <tr class="hover:bg-gray-50" data-id="${o.id}">
+                    <td class="p-3 text-sm text-gray-700">${o.id}</td>
+                    <td class="p-3 text-sm font-bold text-gray-900">${ativo ? ativo.descricao : 'Ativo não encontrado'}</td>
+                    <td class="p-3 text-sm text-gray-700">${o.servico}</td>
+                    <td class="p-3 text-sm text-gray-700">${new Date(o.data + 'T00:00:00').toLocaleDateString()}</td>
+                    <td class="p-3 text-sm text-gray-700">${o.origem}</td>
+                    <td class="p-3 text-sm text-gray-700 text-center">
+                        <button class="edit-btn text-blue-500 hover:text-blue-700 p-1" data-type="os" data-id="${o.id}"><i class="ph ph-pencil-simple text-lg"></i></button>
+                        <button class="delete-btn text-red-500 hover:text-red-700 ml-2 p-1" data-type="os" data-id="${o.id}"><i class="ph ph-trash text-lg"></i></button>
+                    </td>
+                </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    const renderAll = () => {
+        renderKPIs();
+        renderAtivosTable();
+        renderProgramacoesTable();
+        renderOsTable();
+    }
+
+    // --- FUNÇÕES DE NAVEGAÇÃO E MODAL ---
+    const navigateTo = (pageId) => {
+        pages.forEach(p => p.classList.add('hidden'));
+        const page = document.getElementById(pageId);
+        page.classList.remove('hidden', 'active');
+        void page.offsetWidth; // Trigger reflow to restart animation
+        page.classList.add('active');
+
+
+        navLinks.forEach(l => l.classList.remove('active'));
+        document.querySelector(`.nav-link[data-page="${pageId}"]`).classList.add('active');
+    }
+
+    const closeModal = () => {
+        modalContainer.classList.add('hidden');
+        modalContent.innerHTML = '';
+    }
+
+    const openModal = (title, formHTML) => {
+        modalContent.innerHTML = `
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">${title}</h3>
+                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
+            </div>
+            ${formHTML}
+        `;
+        modalContainer.classList.remove('hidden');
+        document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+    }
+    
+    const getAtivosOptions = (selectedId = null) => {
+        if (db.ativos.length === 0) return '<option disabled>Nenhum ativo cadastrado</option>';
+        return db.ativos.map(a => `<option value="${a.id}" ${a.id === selectedId ? 'selected' : ''}>${a.id} - ${a.descricao}</option>`).join('');
+    }
+
+    // --- LÓGICA DE EVENTOS (ADICIONAR) ---
+
+    document.getElementById('add-ativo-btn').addEventListener('click', () => {
+        const formHTML = `
+            <form id="ativo-form">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Descrição</label>
+                        <input type="text" id="ativo-descricao" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tipo de Ativo</label>
+                        <select id="ativo-tipo" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option>Veículo</option> <option>Motor</option> <option>Outros</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-700">Data de Aquisição</label>
+                        <input type="date" id="ativo-aquisicao" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                    </div>
+                </div>
+                <div class="mt-6 text-right">
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700">Salvar Ativo</button>
+                </div>
+            </form>
+        `;
+        openModal('Adicionar Novo Ativo', formHTML);
+
+        document.getElementById('ativo-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const novoAtivo = {
+                id: db.ativos.length > 0 ? Math.max(...db.ativos.map(a => a.id)) + 1 : 1,
+                descricao: document.getElementById('ativo-descricao').value,
+                tipo: document.getElementById('ativo-tipo').value,
+                aquisicao: document.getElementById('ativo-aquisicao').value
+            };
+            db.ativos.push(novoAtivo);
+            renderAll();
+            closeModal();
+        });
+    });
+    
+    document.getElementById('add-prog-btn').addEventListener('click', () => {
+        const formHTML = `
+            <form id="prog-form">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Ativo</label>
+                        <select id="prog-ativo" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md" required>${getAtivosOptions()}</select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Serviço</label>
+                        <input type="text" id="prog-servico" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Ex: Troca de óleo" required>
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-700">Data Programada</label>
+                        <input type="date" id="prog-data" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                    </div>
+                </div>
+                 <div class="mt-6 text-right">
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700">Salvar Programação</button>
+                </div>
+            </form>
+        `;
+        openModal('Adicionar Programação', formHTML);
+
+        document.getElementById('prog-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const novaProg = {
+                id: db.programacoes.length > 0 ? Math.max(...db.programacoes.map(p => p.id)) + 1 : 1,
+                idAtivo: parseInt(document.getElementById('prog-ativo').value),
+                servico: document.getElementById('prog-servico').value,
+                data: document.getElementById('prog-data').value,
+                status: 'Programada'
+            };
+            db.programacoes.push(novaProg);
+            renderAll();
+            closeModal();
+        });
+    });
+
+    document.getElementById('add-os-btn').addEventListener('click', () => {
+        const formHTML = `
+            <form id="os-form">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Ativo</label>
+                        <select id="os-ativo" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md" required>${getAtivosOptions()}</select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Serviço</label>
+                        <input type="text" id="os-servico" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Ex: Reparo no motor" required>
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-700">Data de Abertura</label>
+                        <input type="date" id="os-data" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                    </div>
+                </div>
+                 <div class="mt-6 text-right">
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700">Salvar OS</button>
+                </div>
+            </form>
+        `;
+        openModal('Adicionar Ordem de Serviço', formHTML);
+
+        document.getElementById('os-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const novaOS = {
+                id: db.ordensServico.length > 0 ? Math.max(...db.ordensServico.map(o => o.id)) + 1 : 1,
+                idAtivo: parseInt(document.getElementById('os-ativo').value),
+                servico: document.getElementById('os-servico').value,
+                data: document.getElementById('os-data').value,
+                origem: 'Avulsa'
+            };
+            db.ordensServico.push(novaOS);
+            renderAll();
+            closeModal();
+        });
+    });
+    
+    // --- LÓGICA DE AÇÕES (EDITAR E DELETAR) USANDO EVENT DELEGATION ---
+    document.querySelector('main').addEventListener('click', (e) => {
+        const target = e.target.closest('button');
+        if (!target) return;
+
+        const { type, id } = target.dataset;
+
+        // --- DELETAR ---
+        if (target.classList.contains('delete-btn')) {
+            if (confirm(`Tem certeza que deseja remover este item? (ID: ${id})`)) {
+                if (type === 'ativo') db.ativos = db.ativos.filter(item => item.id !== parseInt(id));
+                if (type === 'programacao') db.programacoes = db.programacoes.filter(item => item.id !== parseInt(id));
+                if (type === 'os') db.ordensServico = db.ordensServico.filter(item => item.id !== parseInt(id));
+                renderAll();
+            }
+        }
+
+        // --- EDITAR ---
+        if (target.classList.contains('edit-btn')) {
+            // Editar Ativo
+            if (type === 'ativo') {
+                const ativo = db.ativos.find(item => item.id === parseInt(id));
+                const formHTML = `
+                    <form id="ativo-form-edit">
+                        <div class="space-y-4">
+                            <div><label class="block text-sm font-medium">Descrição</label><input type="text" id="ativo-descricao" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" value="${ativo.descricao}" required></div>
+                            <div><label class="block text-sm font-medium">Tipo</label><select id="ativo-tipo" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">${['Veículo', 'Motor', 'Outros'].map(t => `<option ${t === ativo.tipo ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+                            <div><label class="block text-sm font-medium">Data de Aquisição</label><input type="date" id="ativo-aquisicao" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" value="${ativo.aquisicao}" required></div>
+                        </div>
+                        <div class="mt-6 text-right"><button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700">Salvar Alterações</button></div>
+                    </form>
+                `;
+                openModal('Editar Ativo', formHTML);
+                document.getElementById('ativo-form-edit').addEventListener('submit', (ev) => {
+                    ev.preventDefault();
+                    const index = db.ativos.findIndex(item => item.id === ativo.id);
+                    db.ativos[index] = {
+                        id: ativo.id,
+                        descricao: document.getElementById('ativo-descricao').value,
+                        tipo: document.getElementById('ativo-tipo').value,
+                        aquisicao: document.getElementById('ativo-aquisicao').value
+                    };
+                    renderAll();
+                    closeModal();
+                });
+            }
+            // Editar Programação
+            if (type === 'programacao') {
+                const prog = db.programacoes.find(item => item.id === parseInt(id));
+                const formHTML = `
+                    <form id="prog-form-edit">
+                         <div class="space-y-4">
+                            <div><label class="block text-sm font-medium">Ativo</label><select id="prog-ativo" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>${getAtivosOptions(prog.idAtivo)}</select></div>
+                            <div><label class="block text-sm font-medium">Serviço</label><input type="text" id="prog-servico" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" value="${prog.servico}" required></div>
+                            <div><label class="block text-sm font-medium">Data</label><input type="date" id="prog-data" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" value="${prog.data}" required></div>
+                         </div>
+                         <div class="mt-6 text-right"><button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700">Salvar Alterações</button></div>
+                    </form>
+                `;
+                openModal('Editar Programação', formHTML);
+                document.getElementById('prog-form-edit').addEventListener('submit', (ev) => {
+                    ev.preventDefault();
+                    const index = db.programacoes.findIndex(item => item.id === prog.id);
+                    db.programacoes[index] = { ...prog, 
+                        idAtivo: parseInt(document.getElementById('prog-ativo').value),
+                        servico: document.getElementById('prog-servico').value,
+                        data: document.getElementById('prog-data').value
+                    };
+                    renderAll();
+                    closeModal();
+                });
+            }
+            // Editar Ordem de Serviço
+             if (type === 'os') {
+                const os = db.ordensServico.find(item => item.id === parseInt(id));
+                const formHTML = `
+                    <form id="os-form-edit">
+                         <div class="space-y-4">
+                            <div><label class="block text-sm font-medium">Ativo</label><select id="os-ativo" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>${getAtivosOptions(os.idAtivo)}</select></div>
+                            <div><label class="block text-sm font-medium">Serviço</label><input type="text" id="os-servico" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" value="${os.servico}" required></div>
+                            <div><label class="block text-sm font-medium">Data</label><input type="date" id="os-data" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" value="${os.data}" required></div>
+                         </div>
+                         <div class="mt-6 text-right"><button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700">Salvar Alterações</button></div>
+                    </form>
+                `;
+                openModal('Editar Ordem de Serviço', formHTML);
+                document.getElementById('os-form-edit').addEventListener('submit', (ev) => {
+                    ev.preventDefault();
+                    const index = db.ordensServico.findIndex(item => item.id === os.id);
+                    db.ordensServico[index] = { ...os, 
+                        idAtivo: parseInt(document.getElementById('os-ativo').value),
+                        servico: document.getElementById('os-servico').value,
+                        data: document.getElementById('os-data').value
+                    };
+                    renderAll();
+                    closeModal();
+                });
+            }
+        }
+    });
+
+    // --- LÓGICA DE FILTRO ---
+    const handleFilter = (input, tbody, noResultsEl, filterBy) => {
+        const filterText = input.value.toLowerCase();
+        let hasVisibleRows = false;
+        tbody.querySelectorAll('tr').forEach(row => {
+            const cell = row.querySelector(`td:nth-child(${filterBy})`);
+            if (cell) {
+                const cellText = cell.textContent.toLowerCase();
+                if (cellText.includes(filterText)) {
+                    row.style.display = '';
+                    hasVisibleRows = true;
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+        noResultsEl.style.display = hasVisibleRows ? 'none' : 'block';
+    };
+
+    document.getElementById('filter-ativos').addEventListener('keyup', (e) => handleFilter(e.target, tableBodies.ativos, document.getElementById('ativos-no-results'), 2));
+    document.getElementById('filter-programacoes').addEventListener('keyup', (e) => handleFilter(e.target, tableBodies.programacoes, document.getElementById('programacoes-no-results'), 3));
+    document.getElementById('filter-os').addEventListener('keyup', (e) => handleFilter(e.target, tableBodies.os, document.getElementById('os-no-results'), 3));
+
+    // --- INICIALIZAÇÃO ---
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(e.target.closest('a').dataset.page);
+        });
+    });
+    modalContainer.addEventListener('click', (e) => {
+        if (e.target === modalContainer) closeModal();
+    });
+    renderAll();
+});
+</script>
+
+</body>
+</html>
