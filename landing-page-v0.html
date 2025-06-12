@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Manutenção de Ativos - Relatório do Projeto</title>
+    <!-- Carregando Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carregando a biblioteca de ícones Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3 {
+            font-family: 'Roboto Slab', serif;
+        }
+        .section-title {
+            @apply text-3xl font-bold text-gray-800 mb-4 pb-2 border-b-2 border-indigo-500;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-700">
+
+    <!-- CABEÇALHO -->
+    <header class="bg-gray-800 text-white shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="ph ph-wrench text-3xl text-indigo-400"></i>
+                <span class="text-xl font-bold">Sistema de Manutenção de Ativos</span>
+            </div>
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="#apresentacao" class="px-3 py-2 rounded-md hover:bg-indigo-600 transition-colors">Apresentação</a>
+                <a href="#implementacao" class="px-3 py-2 rounded-md hover:bg-indigo-600 transition-colors">Implementação</a>
+                <a href="#resultados" class="px-3 py-2 rounded-md hover:bg-indigo-600 transition-colors">Resultados</a>
+                <a href="#contato" class="bg-indigo-500 px-4 py-2 rounded-md hover:bg-indigo-600 transition-colors">Contato</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- SEÇÃO PRINCIPAL (HERO) -->
+    <section class="bg-gray-900 text-white">
+        <div class="container mx-auto px-6 py-20 md:py-28 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-4">Otimize a Gestão de Ativos da sua Empresa</h1>
+            <p class="text-lg md:text-xl text-gray-300 mb-8 max-w-3xl mx-auto">Uma solução completa para cadastrar, monitorar e gerenciar a manutenção de seus equipamentos, evitando paradas inesperadas e aumentando a eficiência operacional.</p>
+            <a href="#implementacao" class="bg-indigo-500 text-white font-bold px-8 py-3 rounded-full hover:bg-indigo-600 transition-transform transform hover:scale-105">Conheça o Projeto</a>
+        </div>
+    </section>
+    
+    <main class="container mx-auto px-6 py-16 space-y-24">
+
+        <!-- APRESENTAÇÃO E ARQUITETURA -->
+        <section id="apresentacao">
+            <h2 class="section-title">Arquitetura e Implementação do Projeto</h2>
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-4">
+                    <p>O projeto foi desenvolvido como uma Single-Page Application (SPA), utilizando tecnologias web modernas para criar uma experiência de usuário fluida e reativa, sem a necessidade de recarregar a página durante o uso.</p>
+                    <h3 class="text-xl font-bold text-gray-800 pt-4">Tecnologias Utilizadas:</h3>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><strong>HTML5:</strong> Para a estruturação semântica do conteúdo.</li>
+                        <li><strong>Tailwind CSS:</strong> Um framework CSS utility-first para a criação rápida de interfaces modernas e responsivas, garantindo uma ótima visualização em desktops e dispositivos móveis.</li>
+                        <li><strong>JavaScript (ES6+):</strong> Utilizado para toda a lógica da aplicação, incluindo manipulação do DOM, gerenciamento de estado em memória (simulando um banco de dados), e interatividade do usuário.</li>
+                         <li><strong>Phosphor Icons:</strong> Biblioteca de ícones para uma interface mais intuitiva e agradável.</li>
+                    </ul>
+                    <p>A escolha dessa stack se deu pela sua simplicidade, rapidez de desenvolvimento e pela facilidade em criar uma demonstração funcional e visualmente atraente em um único arquivo, ideal para prototipagem e apresentação de projetos.</p>
+                </div>
+                 <div class="bg-white p-4 rounded-lg shadow-lg">
+                    <img src="https://i.imgur.com/k2j0h1A.png" alt="Demonstração da interface do sistema de manutenção" class="rounded-md object-cover w-full h-full">
+                </div>
+            </div>
+        </section>
+
+        <!-- MODELAGEM DE DADOS -->
+        <section id="modelagem">
+            <h2 class="section-title">Modelagem de Dados</h2>
+            <p class="mb-6">A estrutura do banco de dados foi planejada para garantir a integridade e o relacionamento correto entre as entidades principais do sistema. O diagrama de classes abaixo ilustra a relação entre Ativos, Programações de Manutenção e Ordens de Serviço.</p>
+            <div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
+                 <!-- Diagrama Mermaid -->
+                 <div class="mermaid text-center">
+                    classDiagram
+                        direction LR
+
+                        class Ativo {
+                            -idAtivo: int
+                            -descricao: string
+                            -tipoAtivo: string
+                            -dataAquisicao: date
+                        }
+
+                        class ManutencaoProgramada {
+                            -idManutencaoProg: int
+                            -idAtivo: int
+                            -servico: string
+                            -dataProgramada: date
+                            -status: string
+                        }
+
+                        class OrdemServico {
+                            -idOrdemServico: int
+                            -idAtivo: int
+                            -servico: string
+                            -dataAbertura: date
+                            -origem: string
+                        }
+
+                        Ativo "1" -- "0..*" ManutencaoProgramada : programa
+                        Ativo "1" -- "0..*" OrdemServico : gera
+                        ManutencaoProgramada "0..1" -- "1" OrdemServico : origina
+                 </div>
+            </div>
+        </section>
+
+        <!-- IMPLEMENTAÇÃO E TELAS -->
+        <section id="implementacao">
+            <h2 class="section-title">Telas e Funcionalidades</h2>
+            <div class="space-y-12">
+                <!-- Telas de Cadastro -->
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Telas de Cadastro (CRUD)</h3>
+                    <p>O sistema possui módulos de cadastro completos para as entidades principais. Cada módulo permite as operações de Criar, Ler, Atualizar e Deletar (CRUD), acessadas através de uma interface modal que centraliza a entrada de dados.</p>
+                </div>
+
+                <!-- Tela de Consulta/Pesquisa -->
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Tela de Consulta/Pesquisa</h3>
+                    <p>Para facilitar a localização de registros, todas as telas de listagem contam com um campo de filtro dinâmico. A pesquisa é realizada em tempo real na coluna principal de cada tabela (ex: "Descrição" para Ativos, "Serviço" para Programações), atualizando os resultados instantaneamente.</p>
+                </div>
+                
+                <!-- Tela de Relatório (Dashboard) -->
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Tela de Relatório (Dashboard)</h3>
+                    <p>A tela inicial funciona como um dashboard, apresentando os Indicadores Chave de Performance (KPIs) mais importantes para uma visão gerencial rápida. Os KPIs exibidos são: Total de Ativos, Total de Manutenções Programadas e Total de Ordens de Serviço.</p>
+                </div>
+
+                <!-- Funcionalidades Adicionais -->
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Funcionalidades Adicionais (Diferenciais)</h3>
+                     <ul class="list-disc list-inside space-y-2">
+                        <li><strong>Interface Responsiva:</strong> A barra lateral se retrai automaticamente em telas menores para maximizar o espaço útil, exibindo tooltips com os nomes das seções ao passar o mouse sobre os ícones.</li>
+                        <li><strong>Confirmação de Exclusão:</strong> Para evitar a perda acidental de dados, o sistema solicita uma confirmação do usuário antes de remover qualquer registro.</li>
+                        <li><strong>Componente de Modal Genérico:</strong> A lógica para abrir, fechar e popular as janelas de formulário foi centralizada, tornando o código mais limpo e reutilizável.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- RESULTADOS E CONSIDERAÇÕES FINAIS -->
+        <section id="resultados">
+            <h2 class="section-title">Resultados e Considerações Finais</h2>
+            <div class="space-y-6 bg-white p-8 rounded-lg shadow-lg">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Resultados Alcançados</h3>
+                    <p>O projeto resultou em uma aplicação web funcional que atende com sucesso aos requisitos propostos. A demonstração implementada prova a viabilidade do conceito, oferecendo uma interface intuitiva para o gerenciamento completo do ciclo de manutenção de ativos, desde o cadastro do equipamento até a execução dos serviços.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Desafios e Soluções</h3>
+                    <p>Um dos principais desafios foi garantir uma experiência de usuário coesa e reativa sem um backend ou banco de dados real. Isso foi superado através da simulação do banco de dados com objetos JavaScript e da implementação de uma lógica de renderização que atualiza a interface dinamicamente após cada ação do usuário. Outro desafio foi criar uma interface responsiva e funcional, solucionado com o uso estratégico das classes utilitárias do Tailwind CSS.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Sugestões de Melhorias Futuras</h3>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><strong>Integração com Backend e Banco de Dados:</strong> Substituir a simulação em memória por uma API RESTful e um banco de dados relacional (como PostgreSQL) ou não-relacional (como MongoDB) para persistência de dados.</li>
+                        <li><strong>Autenticação de Usuários:</strong> Implementar um sistema de login com diferentes níveis de permissão (ex: Administrador, Gerente, Técnico).</li>
+                        <li><strong>Relatórios Avançados:</strong> Criar uma seção de relatórios com gráficos interativos (usando bibliotecas como Chart.js ou D3.js) para analisar custos, tempo de parada e performance dos ativos.</li>
+                        <li><strong>Sistema de Notificações:</strong> Enviar alertas por e-mail ou na própria interface sobre manutenções programadas que estão próximas do vencimento.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- REFERÊNCIAS -->
+        <section id="referencias">
+            <h2 class="section-title">Referências</h2>
+            <div class="bg-white p-8 rounded-lg shadow-lg space-y-3">
+                <p class="font-mono text-sm">TAILWIND CSS. <strong>Documentation</strong>. Disponível em: &lt;https://tailwindcss.com/docs&gt;. Acesso em: 12 jun. 2025.</p>
+                <p class="font-mono text-sm">PHOSPHOR ICONS. <strong>Homepage</strong>. Disponível em: &lt;https://phosphoricons.com&gt;. Acesso em: 12 jun. 2025.</p>
+                <p class="font-mono text-sm">MDN WEB DOCS. <strong>JavaScript</strong>. Disponível em: &lt;https://developer.mozilla.org/pt-BR/docs/Web/JavaScript&gt;. Acesso em: 12 jun. 2025.</p>
+            </div>
+        </section>
+
+        <!-- APÊNDICES -->
+        <section id="apendices">
+            <h2 class="section-title">Apêndices</h2>
+             <div class="bg-white p-8 rounded-lg shadow-lg">
+                <h3 class="text-lg font-semibold text-gray-800">Link para o Repositório do Projeto</h3>
+                <p>O código-fonte completo deste projeto, incluindo o arquivo HTML da demonstração, está disponível no seguinte repositório:</p>
+                <a href="#" class="text-indigo-600 hover:underline break-all">https://github.com/willjrcristo/manutencao-ativos-demo.git</a>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- RODAPÉ -->
+    <footer id="contato" class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>&copy; 2025 Sistema de Manutenção de Ativos. Desenvolvido como projeto de demonstração.</p>
+            <p class="text-sm text-gray-400">Entre em contato: willjrcristo@gmail.com</p>
+        </div>
+    </footer>
+
+    <!-- Script para renderizar o diagrama Mermaid -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</body>
+</html>
+
