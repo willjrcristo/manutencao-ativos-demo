@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Manutenção de Ativos{% endblock %}
+
+{% block content %}
+<div id="dashboard">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+        
+        <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-5">
+            <div class="bg-blue-100 p-4 rounded-full"><i class="ph ph-truck text-3xl text-blue-600"></i></div>
+            <div>
+                <h3 class="text-gray-500 font-medium">Total de Ativos</h3>
+                <div class="text-4xl font-bold text-gray-800">{{ total_ativos }}</div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-5">
+            <div class="bg-green-100 p-4 rounded-full"><i class="ph ph-calendar-check text-3xl text-green-600"></i></div>
+            <div>
+                <h3 class="text-gray-500 font-medium">Manutenções Programadas</h3>
+                <div class="text-4xl font-bold text-gray-800">{{ total_programacoes }}</div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-5">
+             <div class="bg-yellow-100 p-4 rounded-full"><i class="ph ph-file-text text-3xl text-yellow-600"></i></div>
+            <div>
+                <h3 class="text-gray-500 font-medium">Ordens de Serviço</h3>
+                <div class="text-4xl font-bold text-gray-800">{{ total_os }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

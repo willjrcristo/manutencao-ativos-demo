@@ -16,10 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from manutencao_app.views import AtivoListView, AtivoCreateView, AtivoUpdateView, AtivoDeleteView
+from manutencao_app.views import AtivoListView, AtivoCreateView, AtivoUpdateView, AtivoDeleteView, DashboardView
+# from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # Rota para a raiz do site -> http://127.0.0.1:8000/
+    path('', DashboardView, name='dashboard'),
+
     # Rota para a lista de ativos (Read)
     path('ativos/', AtivoListView.as_view(), name='ativo_list'),
     
