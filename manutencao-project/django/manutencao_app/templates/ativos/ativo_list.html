@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Cadastro de Ativos</h2>
+    <a href="{% url 'ativo_create' %}">Adicionar Novo Ativo</a>
+    
+    <hr>
+    
+    <ul>
+        {% for ativo in ativos %}
+            <li>
+                {{ ativo.Descricao }} ({{ ativo.TipoAtivo }})
+                - <a href="{% url 'ativo_update' pk=ativo.id %}">Editar</a>
+                - <a href="{% url 'ativo_delete' pk=ativo.id %}">Excluir</a>
+            </li>
+        {% empty %}
+            <li>Nenhum ativo cadastrado.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
