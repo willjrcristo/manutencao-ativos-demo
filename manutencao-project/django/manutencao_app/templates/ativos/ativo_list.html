@@ -1,20 +1,58 @@
 {% extends 'base.html' %}
 
+{% block title %}Lista de Ativos{% endblock %}
+
 {% block content %}
-    <h2>Cadastro de Ativos</h2>
-    <a href="{% url 'ativo_create' %}">Adicionar Novo Ativo</a>
-    
-    <hr>
-    
-    <ul>
-        {% for ativo in ativos %}
-            <li>
-                {{ ativo.Descricao }} ({{ ativo.TipoAtivo }})
-                - <a href="{% url 'ativo_update' pk=ativo.id %}">Editar</a>
-                - <a href="{% url 'ativo_delete' pk=ativo.id %}">Excluir</a>
-            </li>
-        {% empty %}
-            <li>Nenhum ativo cadastrado.</li>
-        {% endfor %}
-    </ul>
+<div class="bg-white p-6 rounded-xl shadow-md">
+    <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+        <h2 class="text-2xl font-bold text-gray-800">Ativos</h2>
+        <div class="flex items-center gap-4">
+            <form method="get" class="flex items-center gap-2">
+                <input type="text" name="q" placeholder="Filtrar por descrição..." value="{{ request.GET.q }}" class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                <button type="submit" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                    <i class="ph ph-magnifying-glass"></i>
+                </button>
+            </form>
+            <a href="{% url 'ativo_create' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center gap-2">
+                <i class="ph ph-plus"></i> Adicionar Ativo
+            </a>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50 border-b-2 border-gray-200">
+                <tr>
+                    <th class="p-3 text-sm font-semibold tracking-wide">ID</th>
+                    <th class="p-3 text-sm font-semibold tracking-wide">Descrição</th>
+                    <th class="p-3 text-sm font-semibold tracking-wide">Tipo</th>
+                    <th class="p-3 text-sm font-semibold tracking-wide">Aquisição</th>
+                    <th class="p-3 text-sm font-semibold tracking-wide text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for ativo in object_list %}
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 text-sm text-gray-700">{{ ativo.pk }}</td>
+                    <td class="p-3 text-sm font-bold text-gray-900">{{ ativo.descricao }}</td>
+                    <td class="p-3 text-sm text-gray-700">{{ ativo.get_tipo_ativo_display }}</td>
+                    <td class="p-3 text-sm text-gray-700">{{ ativo.data_aquisicao|date:"d/m/Y" }}</td>
+                    <td class="p-3 text-sm text-gray-700 text-center">
+                        <a href="{% url 'ativo_update' pk=ativo.pk %}" class="text-blue-500 hover:text-blue-700 p-1" title="Editar">
+                            <i class="ph ph-pencil-simple text-lg"></i>
+                        </a>
+                        <a href="{% url 'ativo_delete' pk=ativo.pk %}" class="text-red-500 hover:text-red-700 ml-2 p-1" title="Excluir">
+                            <i class="ph ph-trash text-lg"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center p-4 text-gray-500">Nenhum ativo encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}
