@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Lista de Ordens de Serviço{% endblock %}
+
+{% block content %}
+
+<div class="bg-white p-6 rounded-xl shadow-md">
+    <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+        <h2 class="text-2xl font-bold text-gray-800">Ordens de Serviço</h2>
+        <div class="flex items-center gap-4">
+            <div class="relative inline-flex shadow-md rounded-lg js-split-button-container">
+                <button data-action-type="add" data-url="{% url 'ordem_servico_create' %}" type="button" class="js-main-btn bg-indigo-600 text-white px-4 py-2 font-semibold hover:bg-indigo-700 flex items-center gap-2 rounded-l-lg"><i class="ph ph-plus"></i> Adicionar Ordem de Serviço</button>
+                <div class="relative"><button type="button" class="js-dropdown-btn bg-indigo-700 text-white px-2 py-2 hover:bg-indigo-800 rounded-r-lg"><i class="ph ph-caret-down"></i></button></div>
+            </div>
+            <div class="relative inline-flex shadow-md rounded-lg js-split-button-container">
+                <button id="global-edit-btn" data-action-type="edit" type="button" class="js-main-btn bg-blue-600 text-white px-4 py-2 font-semibold flex items-center gap-2 rounded-l-lg disabled:bg-gray-300 disabled:cursor-not-allowed" disabled><i class="ph ph-pencil-simple"></i> Editar</button>
+                <div class="relative"><button id="global-edit-dropdown-btn" type="button" class="js-dropdown-btn bg-blue-700 text-white px-2 py-2 hover:bg-blue-800 rounded-r-lg disabled:bg-gray-300 disabled:cursor-not-allowed" disabled><i class="ph ph-caret-down"></i></button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50 border-b-2 border-gray-200">
+                <tr>
+                    <th class="p-3 text-sm font-semibold tracking-wide w-12 text-center">Sel.</th>
+                    <th class="p-3 text-sm font-semibold tracking-wide">Serviço Executado</th>
+                    <th class="p-3 text-sm font-semibold tracking-wide">Ativo</th>
+                    <th class="p-3 text-sm font-semibold tracking-wide">Data</th>
+                    <th class="p-3 text-sm font-semibold tracking-wide">Hodômetro</th>
+                    <th class="p-3 text-sm font-semibold tracking-wide">Horímetro</th>
+                    <th class="p-3 text-sm font-semibold tracking-wide text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody id="ordens-servico-table-body" class="divide-y divide-gray-100">
+                {% for os in object_list %}
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 text-center">
+                        <input type="radio" name="os_selecionada" class="js-select-row h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" value="{{ os.pk }}" data-update-url="{% url 'ordem_servico_update' pk=os.pk %}">
+                    </td>
+                    <td class="p-3 text-sm font-bold text-gray-900">{{ os.servico|truncatechars:50 }}</td>
+                    <td class="p-3 text-sm text-gray-700">{{ os.ativo.descricao }}</td>
+                    <td class="p-3 text-sm text-gray-700">{{ os.data|date:"d/m/Y H:i" }}</td>
+                    <td class="p-3 text-sm text-gray-700">{{ os.hodometro_atual }}</td>
+                    <td class="p-3 text-sm text-gray-700">{{ os.horimetro_atual }}</td>
+                    <td class="p-3 text-sm text-gray-700 text-center flex justify-center gap-2">
+                        <button type="button" class="js-main-btn bg-blue-600 text-white p-2 rounded-lg shadow-md hover:bg-blue-700" title="Editar este item" data-action-type="edit" data-url="{% url 'ordem_servico_update' pk=os.pk %}">
+                            <i class="ph ph-pencil-simple"></i>
+                        </button>
+                        <button type="button" class="js-delete-btn bg-red-600 text-white p-2 rounded-lg shadow-md hover:bg-red-700" title="Excluir" data-url="{% url 'ordem_servico_delete' pk=os.pk %}" data-nome="OS #{{ os.id }} para o ativo {{ os.ativo.descricao }}">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center p-4 text-gray-500">Nenhuma ordem de serviço cadastrada.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div id="modal-container" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+    <div id="modal-content" class="bg-white p-6 md:p-8 rounded-xl shadow-2xl max-w-2xl w-full"></div>
+</div>
+
+<div id="delete-modal-template" class="hidden">
+    <div class="text-center">
+        <i class="ph ph-warning-circle text-5xl text-red-500"></i>
+        <h2 class="text-2xl font-bold mt-4 mb-2">Confirmar Exclusão</h2>
+        <p id="delete-modal-text" class="text-gray-600 mb-6"></p>
+        <form id="delete-form" method="post">
+            {% csrf_token %}
+            <div class="flex justify-center gap-4">
+                <button type="button" class="js-modal-cancel bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300">Cancelar</button>
+                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2"><i class="ph ph-trash"></i> Sim, Excluir</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="create-form-template" class="hidden">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Adicionar Nova Ordem de Serviço</h2>
+    <form action="{% url 'ordem_servico_create' %}" method="post">
+        {% csrf_token %}
+        <div class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            {% for field in form %}
+            <div>
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                {% render_field field class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" %}
+                {% if field.errors %}<p class="text-red-500 text-xs mt-1">{{ field.errors.as_text }}</p>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="mt-8 flex justify-end gap-4 border-t pt-4">
+            <button type="button" class="js-modal-cancel bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-semibold">Cancelar</button>
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2"><i class="ph ph-check-circle"></i> Salvar</button>
+        </div>
+    </form>
+</div>
+
+<div id="generic-dropdown-menu" class="fixed w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden z-[60]"></div>
+
+<div id="add-menu-template" class="hidden">
+    <div class="p-2">
+        <p class="text-xs text-gray-500 px-2 pb-1">Ação padrão:</p>
+        <label class="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 cursor-pointer"><input type="radio" name="add-action" value="modal" class="h-4 w-4 text-indigo-600"><span class="text-sm text-gray-700">Abrir em modal</span></label>
+        <label class="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 cursor-pointer"><input type="radio" name="add-action" value="page" class="h-4 w-4 text-indigo-600"><span class="text-sm text-gray-700">Abrir em nova página</span></label>
+    </div>
+</div>
+
+<div id="edit-menu-template" class="hidden">
+    <div class="p-2">
+        <p class="text-xs text-gray-500 px-2 pb-1">Ação padrão para editar:</p>
+        <label class="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 cursor-pointer"><input type="radio" name="edit-action" value="modal" class="h-4 w-4 text-indigo-600"><span class="text-sm text-gray-700">Abrir em modal</span></label>
+        <label class="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 cursor-pointer"><input type="radio" name="edit-action" value="page" class="h-4 w-4 text-indigo-600"><span class="text-sm text-gray-700">Abrir em nova página</span></label>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block javascript %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Elementos do DOM ---
+            const modalContainer = document.getElementById('modal-container');
+            const modalContent = document.getElementById('modal-content');
+            const genericDropdownMenu = document.getElementById('generic-dropdown-menu');
+            const globalEditBtn = document.getElementById('global-edit-btn');
+            const globalEditDropdownBtn = document.getElementById('global-edit-dropdown-btn');
+            const tableBody = document.getElementById('ordens-servico-table-body'); 
+            let currentActiveDropdownButton = null;
+
+            // --- LÓGICA GERAL DE MODAL ---
+            const openModal = (htmlContent) => {
+                modalContent.innerHTML = htmlContent;
+                modalContainer.classList.remove('hidden');
+            };
+            const closeModal = () => {
+                modalContainer.classList.add('hidden');
+                modalContent.innerHTML = '';
+            };
+            modalContainer.addEventListener('click', (e) => {
+                if (e.target === modalContainer || e.target.closest('.js-modal-cancel')) {
+                    closeModal();
+                }
+            });
+
+            // --- LÓGICA DE SELEÇÃO DE LINHA ---
+            if (tableBody) {
+                tableBody.addEventListener('change', function(e) {
+                    if (e.target.classList.contains('js-select-row') && e.target.checked) {
+                        const selectedRadio = e.target;
+                        const updateUrl = selectedRadio.dataset.updateUrl;
+                        globalEditBtn.disabled = false;
+                        globalEditDropdownBtn.disabled = false;
+                        globalEditBtn.dataset.url = updateUrl;
+                    }
+                });
+            }
+
+            // --- LÓGICA GERAL PARA BOTÕES DIVIDIDOS (SPLIT BUTTONS) ---
+            document.querySelectorAll('.js-dropdown-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (this.disabled) return;
+                    
+                    if (genericDropdownMenu.style.display === 'block' && currentActiveDropdownButton === this) {
+                        genericDropdownMenu.style.display = 'none';
+                        currentActiveDropdownButton = null;
+                        return;
+                    }
+                    currentActiveDropdownButton = this;
+                    const mainBtn = this.closest('.js-split-button-container').querySelector('.js-main-btn');
+                    const actionType = mainBtn.dataset.actionType;
+                    const storageKey = actionType === 'add' ? 'ordemServicoAddActionPreference' : 'ordemServicoEditActionPreference';
+                    const templateId = actionType === 'add' ? 'add-menu-template' : 'edit-menu-template';
+                    
+                    genericDropdownMenu.innerHTML = document.getElementById(templateId).innerHTML;
+                    const savedPreference = localStorage.getItem(storageKey) || 'modal';
+                    genericDropdownMenu.querySelector(`input[value="${savedPreference}"]`).checked = true;
+                    
+                    const rect = this.getBoundingClientRect();
+                    genericDropdownMenu.style.display = 'block';
+                    genericDropdownMenu.style.position = 'fixed';
+                    genericDropdownMenu.style.top = `${rect.bottom + window.scrollY + 5}px`;
+                    genericDropdownMenu.style.left = `${rect.right + window.scrollX - genericDropdownMenu.offsetWidth}px`;
+
+                    genericDropdownMenu.querySelectorAll('input[type="radio"]').forEach(radio => {
+                        radio.addEventListener('change', function() {
+                            localStorage.setItem(storageKey, this.value);
+                            genericDropdownMenu.style.display = 'none';
+                            currentActiveDropdownButton = null;
+                            mainBtn.click();
+                        });
+                    });
+                });
+            });
+
+            // --- LÓGICA DO BOTÃO PRINCIPAL (ADICIONAR/EDITAR) ---
+            document.querySelectorAll('.js-main-btn').forEach(mainBtn => {
+                mainBtn.addEventListener('click', function() {
+                    if (this.disabled) return;
+                    const actionType = this.dataset.actionType;
+                    const storageKey = actionType === 'add' ? 'ordemServicoAddActionPreference' : 'ordemServicoEditActionPreference';
+                    const preference = localStorage.getItem(storageKey) || 'modal';
+                    const url = this.dataset.url;
+
+                    if (preference === 'page') {
+                        window.location.href = url;
+                    } else {
+                        if (actionType === 'add') {
+                            openModal(document.getElementById('create-form-template').innerHTML);
+                        }
+                        if (actionType === 'edit') {
+                            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                                .then(response => {
+                                    if (!response.ok) throw new Error('A resposta da rede não foi OK');
+                                    return response.text();
+                                })
+                                .then(html => openModal(html))
+                                .catch(error => console.error('Erro ao buscar o formulário de edição:', error));
+                        }
+                    }
+                });
+            });
+
+            // --- LÓGICA PARA FECHAR O DROPDOWN AO CLICAR FORA ---
+            document.addEventListener('click', () => {
+                if (genericDropdownMenu.style.display === 'block') {
+                    genericDropdownMenu.style.display = 'none';
+                    currentActiveDropdownButton = null;
+                }
+            });
+
+            // --- LÓGICA DO MODAL DE DELEÇÃO ---
+            if (tableBody) {
+                tableBody.addEventListener('click', function(e) {
+                    const deleteButton = e.target.closest('.js-delete-btn');
+                    if (deleteButton) {
+                        openModal(document.getElementById('delete-modal-template').innerHTML);
+                        document.getElementById('delete-modal-text').innerHTML = `Você tem certeza que deseja excluir o item <br><strong>"${deleteButton.dataset.nome}"</strong>?`;
+                        document.getElementById('delete-form').action = deleteButton.dataset.url;
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

@@ -29,15 +29,24 @@
             <h1 class="text-2xl font-bold hidden lg:inline whitespace-nowrap">Manutenção</h1>
         </div>
         <nav class="flex flex-col gap-2">
-            <a href="{% url 'dashboard' %}"
-                class="sidebar-link nav-link group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+            <a href="{% url 'dashboard' %}" class="sidebar-link nav-link group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
                 <i class="ph ph-gauge text-2xl"></i>
                 <span class="hidden lg:inline">Dashboard</span>
             </a>
-            <a href="{% url 'ativo_list' %}"
+            <a href="{% url 'ativo_list' %}" 
                 class="sidebar-link nav-link group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
                 <i class="ph ph-truck text-2xl"></i>
                 <span class="hidden lg:inline">Ativos</span>
+            </a>
+            <a href="{% url 'manutencao_list' %}"
+                class="sidebar-link nav-link group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <i class="ph ph-calendar-check text-2xl"></i>
+                <span class="hidden lg:inline">Manutenções</span>
+            </a>
+            <a href="{% url 'ordem_servico_list' %}"
+                class="sidebar-link nav-link group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <i class="ph ph-file-text text-2xl"></i>
+                <span class="hidden lg:inline">Ordens de Serviço</span>
             </a>
         </nav>
     </aside>
