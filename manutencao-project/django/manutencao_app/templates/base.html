@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,10 +10,17 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         /* Estilos personalizados (copiados do seu demo.html) */
-        body { font-family: 'Inter', sans-serif; }
-        .sidebar-link.active { background-color: #4f46e5; color: white; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar-link.active {
+            background-color: #4f46e5;
+            color: white;
+        }
     </style>
 </head>
+
 <body class="bg-gray-100 flex h-screen">
 
     <aside class="w-20 lg:w-64 bg-gray-800 text-white flex flex-col p-4 flex-shrink-0 transition-all duration-300">
@@ -21,21 +29,27 @@
             <h1 class="text-2xl font-bold hidden lg:inline whitespace-nowrap">Manutenção</h1>
         </div>
         <nav class="flex flex-col gap-2">
-            <a href="{% url 'dashboard' %}" class="sidebar-link nav-link group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <i class="ph ph-gauge text-2xl"></i> 
+            <a href="{% url 'dashboard' %}"
+                class="sidebar-link nav-link group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <i class="ph ph-gauge text-2xl"></i>
                 <span class="hidden lg:inline">Dashboard</span>
             </a>
-            <a href="{% url 'ativo_list' %}" class="sidebar-link nav-link group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                <i class="ph ph-truck text-2xl"></i> 
+            <a href="{% url 'ativo_list' %}"
+                class="sidebar-link nav-link group relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                <i class="ph ph-truck text-2xl"></i>
                 <span class="hidden lg:inline">Ativos</span>
             </a>
-            </nav>
+        </nav>
     </aside>
 
     <main class="flex-1 p-6 lg:p-8 overflow-y-auto">
         {% block content %}
         {% endblock %}
     </main>
-    
-    </body>
+
+    {% block javascript %}
+    {% endblock %}
+
+</body>
+
 </html>

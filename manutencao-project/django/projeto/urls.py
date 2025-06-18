@@ -16,24 +16,24 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from manutencao_app.views import AtivoListView, AtivoCreateView, AtivoUpdateView, AtivoDeleteView, DashboardView
+from manutencao_app.views import  viewDashboard, listViewAtivos, createViewAtivo, updateViewAtivo, deleteViewAtivo
 # from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Rota para a raiz do site -> http://127.0.0.1:8000/
-    path('', DashboardView, name='dashboard'),
+    path('', viewDashboard, name='dashboard'),
 
     # Rota para a lista de ativos (Read)
-    path('ativos/', AtivoListView.as_view(), name='ativo_list'),
+    path('ativos/', listViewAtivos, name='ativo_list'),
     
     # Rota para o formulário de criação (Create)
-    path('ativos/novo/', AtivoCreateView.as_view(), name='ativo_create'),
+    path('ativos/novo/', createViewAtivo.as_view(), name='ativo_create'),
     
     # Rota para o formulário de edição (Update)
-    path('ativos/<int:pk>/editar/', AtivoUpdateView.as_view(), name='ativo_update'),
+    path('ativos/<int:pk>/editar/', updateViewAtivo.as_view(), name='ativo_update'),
     
     # Rota para a confirmação de exclusão (Delete)
-    path('ativos/<int:pk>/excluir/', AtivoDeleteView.as_view(), name='ativo_delete'),
+    path('ativos/<int:pk>/excluir/', deleteViewAtivo.as_view(), name='ativo_delete'),
 ]
